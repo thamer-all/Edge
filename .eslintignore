@@ -1,0 +1,107 @@
+# Build outputs
+dist/
+build/
+coverage/
+.next/
+out/
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Generated files
+*.generated.*
+*.auto.*
+public/sw.js
+public/workbox-*.js
+
+# Test results
+test-results/
+playwright-report/
+.nyc_output
+
+# Cache directories
+.cache/
+.parcel-cache/
+.eslintcache
+
+# Environment files
+.env*
+!.env.example
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+tmp/
+temp/
+
+# Minified files
+*.min.js
+*.min.css
+
+# Vendor files
+vendor/
+vendors/
+
+# Documentation builds
+docs/build/
+
+# Auto-generated API documentation
+api-docs/
+
+# Storybook build
+storybook-static/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Webpack bundle analyzer
+bundle-analyzer/
+
+# Certificate files
+*.pem
+*.key
+*.crt
+
+# Git files
+.git/
+.gitignore
+
+# Docker files (optional, depending on your linting preferences)
+Dockerfile*
+docker-compose*.yml
+
+# CI/CD files (if you don't want to lint them)
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+
+# Config files that might have different formatting
+*.config.js
+!vite.config.js
+!vitest.config.js
+!playwright.config.js 

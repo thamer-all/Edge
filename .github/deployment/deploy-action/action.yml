@@ -1,0 +1,225 @@
+name: 'Deploy Application'
+description: 'Deploy AGI Learning Platform to specified environment'
+branding:
+  icon: 'upload-cloud'
+  color: 'blue'
+
+inputs:
+  environment:
+    description: 'Target environment (staging/production)'
+    required: true
+  version:
+    description: 'Application version to deploy'
+    required: true
+  image-tag:
+    description: 'Docker image tag to deploy'
+    required: true
+  deploy-key:
+    description: 'SSH deploy key for server access'
+    required: true
+  host:
+    description: 'Target server hostname'
+    required: true
+  user:
+    description: 'SSH username'
+    required: true
+    default: 'deploy'
+  blue-green:
+    description: 'Enable blue-green deployment'
+    required: false
+    default: 'false'
+
+outputs:
+  deployment-id:
+    description: 'Unique deployment identifier'
+    value: ${{ steps.deploy.outputs.deployment-id }}
+  deployment-url:
+    description: 'URL of the deployed application'
+    value: ${{ steps.deploy.outputs.deployment-url }}
+  rollback-id:
+    description: 'Rollback identifier for this deployment'
+    value: ${{ steps.deploy.outputs.rollback-id }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup SSH
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ inputs.deploy-key }}" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        ssh-keyscan -H ${{ inputs.host }} >> ~/.ssh/known_hosts
+        
+    - name: Generate deployment ID
+      id: deployment-id
+      shell: bash
+      run: |
+        DEPLOYMENT_ID="deploy-$(date +%Y%m%d-%H%M%S)-${GITHUB_SHA::8}"
+        echo "deployment-id=${DEPLOYMENT_ID}" >> $GITHUB_OUTPUT
+        echo "Generated deployment ID: ${DEPLOYMENT_ID}"
+        
+    - name: Prepare deployment
+      shell: bash
+      run: |
+        echo "🚀 Preparing deployment to ${{ inputs.environment }}"
+        echo "Version: ${{ inputs.version }}"
+        echo "Image: ${{ inputs.image-tag }}"
+        echo "Host: ${{ inputs.host }}"
+        echo "Blue-Green: ${{ inputs.blue-green }}"
+        
+    - name: Create deployment directory
+      shell: bash
+      run: |
+        ssh -i ~/.ssh/deploy_key ${{ inputs.user }}@${{ inputs.host }} "
+          sudo mkdir -p /opt/agi-platform/deployments/${{ steps.deployment-id.outputs.deployment-id }}
+          sudo mkdir -p /opt/agi-platform/backups
+          sudo mkdir -p /opt/agi-platform/logs
+          sudo chown -R ${{ inputs.user }}:${{ inputs.user }} /opt/agi-platform
+        "
+        
+    - name: Upload deployment files
+      shell: bash
+      run: |
+        echo "📦 Uploading deployment files..."
+        scp -i ~/.ssh/deploy_key -r deployment-package/* \
+          ${{ inputs.user }}@${{ inputs.host }}:/opt/agi-platform/deployments/${{ steps.deployment-id.outputs.deployment-id }}/
+          
+    - name: Deploy with Docker Compose
+      id: deploy
+      shell: bash
+      run: |
+        echo "🔄 Starting deployment..."
+        
+        DEPLOYMENT_DIR="/opt/agi-platform/deployments/${{ steps.deployment-id.outputs.deployment-id }}"
+        
+        if [[ "${{ inputs.blue-green }}" == "true" ]]; then
+          echo "🔵 Blue-Green deployment enabled"
+          
+          # Blue-Green deployment logic
+          ssh -i ~/.ssh/deploy_key ${{ inputs.user }}@${{ inputs.host }} "
+            cd ${DEPLOYMENT_DIR}
+            
+            # Check current active slot
+            CURRENT_SLOT=\$(docker ps --filter 'label=app=agi-platform' --filter 'label=slot=active' --format '{{.Label \"slot\"}}' | head -1)
+            if [[ \"\${CURRENT_SLOT}\" == \"blue\" ]]; then
+              NEW_SLOT=\"green\"
+              OLD_SLOT=\"blue\"
+            else
+              NEW_SLOT=\"blue\"
+              OLD_SLOT=\"green\"
+            fi
+            
+            echo \"Deploying to \${NEW_SLOT} slot...\"
+            
+            # Start new deployment in inactive slot
+            docker-compose -f docker-compose.yml -f docker-compose.\${NEW_SLOT}.yml up -d
+            
+            # Wait for health check
+            echo \"Waiting for health check...\"
+            for i in {1..30}; do
+              if curl -f http://localhost:\${NEW_SLOT}_PORT/health; then
+                echo \"Health check passed\"
+                break
+              fi
+              if [[ \$i -eq 30 ]]; then
+                echo \"Health check failed\"
+                exit 1
+              fi
+              sleep 10
+            done
+            
+            # Switch traffic to new slot
+            echo \"Switching traffic to \${NEW_SLOT}...\"
+            docker exec nginx nginx -s reload
+            
+            # Stop old slot
+            if [[ \"\${OLD_SLOT}\" != \"\" ]]; then
+              echo \"Stopping \${OLD_SLOT} slot...\"
+              docker-compose -f docker-compose.\${OLD_SLOT}.yml down
+            fi
+            
+            echo \"Blue-Green deployment completed successfully\"
+          "
+        else
+          echo "📦 Standard deployment"
+          
+          # Standard deployment
+          ssh -i ~/.ssh/deploy_key ${{ inputs.user }}@${{ inputs.host }} "
+            cd ${DEPLOYMENT_DIR}
+            
+            # Stop existing containers
+            docker-compose down || true
+            
+            # Start new deployment
+            docker-compose up -d
+            
+            # Wait for health check
+            echo \"Waiting for application to start...\"
+            for i in {1..20}; do
+              if curl -f http://localhost/health; then
+                echo \"Application is healthy\"
+                break
+              fi
+              if [[ \$i -eq 20 ]]; then
+                echo \"Health check failed\"
+                exit 1
+              fi
+              sleep 15
+            done
+            
+            echo \"Standard deployment completed successfully\"
+          "
+        fi
+        
+        # Set outputs
+        if [[ "${{ inputs.environment }}" == "production" ]]; then
+          DEPLOYMENT_URL="https://agi-platform.com"
+        else
+          DEPLOYMENT_URL="https://staging.agi-platform.com"
+        fi
+        
+        echo "deployment-id=${{ steps.deployment-id.outputs.deployment-id }}" >> $GITHUB_OUTPUT
+        echo "deployment-url=${DEPLOYMENT_URL}" >> $GITHUB_OUTPUT
+        echo "rollback-id=rollback-$(date +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
+        
+    - name: Update deployment symlink
+      shell: bash
+      run: |
+        echo "🔗 Updating current deployment symlink..."
+        ssh -i ~/.ssh/deploy_key ${{ inputs.user }}@${{ inputs.host }} "
+          cd /opt/agi-platform
+          ln -sfn deployments/${{ steps.deployment-id.outputs.deployment-id }} current
+          echo 'Deployment symlink updated'
+        "
+        
+    - name: Log deployment
+      shell: bash
+      run: |
+        echo "📝 Logging deployment information..."
+        ssh -i ~/.ssh/deploy_key ${{ inputs.user }}@${{ inputs.host }} "
+          echo '{
+            \"deployment_id\": \"${{ steps.deployment-id.outputs.deployment-id }}\",
+            \"version\": \"${{ inputs.version }}\",
+            \"environment\": \"${{ inputs.environment }}\",
+            \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",
+            \"commit\": \"${GITHUB_SHA}\",
+            \"actor\": \"${GITHUB_ACTOR}\"
+          }' > /opt/agi-platform/logs/deployment-${{ steps.deployment-id.outputs.deployment-id }}.json
+        "
+        
+    - name: Cleanup SSH
+      if: always()
+      shell: bash
+      run: |
+        rm -f ~/.ssh/deploy_key
+        
+    - name: Deployment summary
+      shell: bash
+      run: |
+        echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment**: ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Version**: ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Deployment ID**: ${{ steps.deployment-id.outputs.deployment-id }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **URL**: ${{ steps.deploy.outputs.deployment-url }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status**: ✅ Successful" >> $GITHUB_STEP_SUMMARY 

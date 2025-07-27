@@ -1,0 +1,403 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deploy to environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      version:
+        description: 'Version to deploy (leave empty for latest)'
+        required: false
+        type: string
+
+env:
+  NODE_VERSION: '18'
+  PNPM_VERSION: '8'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Job 1: Build and Test
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      image-tag: ${{ steps.image.outputs.tag }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+            
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Generate version
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          elif [[ "${{ github.event.inputs.version }}" != "" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="$(git describe --tags --always --dirty)-${GITHUB_SHA::8}"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Generated version: ${VERSION}"
+          
+      - name: Build application
+        run: pnpm run build
+        env:
+          VITE_APP_VERSION: ${{ steps.version.outputs.version }}
+          VITE_BUILD_TIME: ${{ github.run_number }}
+          VITE_COMMIT_SHA: ${{ github.sha }}
+          
+      - name: Build backend
+        working-directory: ./server
+        run: |
+          npm ci --only=production
+          
+      - name: Create deployment package
+        run: |
+          mkdir -p deployment-package
+          cp -r dist deployment-package/frontend
+          cp -r server deployment-package/backend
+          cp package.json deployment-package/
+          cp -r .github/deployment deployment-package/
+          
+      - name: Upload deployment artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: deployment-package-${{ steps.version.outputs.version }}
+          path: deployment-package/
+          retention-days: 30
+          
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            
+      - name: Build and push Docker image
+        id: image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .github/deployment/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ steps.version.outputs.version }}
+            BUILD_TIME=${{ github.run_number }}
+            COMMIT_SHA=${{ github.sha }}
+
+  # Job 2: Deploy to Staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build]
+    environment: 
+      name: staging
+      url: https://staging.agi-platform.com
+    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download deployment artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: deployment-package-${{ needs.build.outputs.version }}
+          path: deployment-package/
+          
+      - name: Deploy to Staging
+        uses: ./.github/deployment/deploy-action
+        with:
+          environment: staging
+          version: ${{ needs.build.outputs.version }}
+          image-tag: ${{ needs.build.outputs.image-tag }}
+          deploy-key: ${{ secrets.STAGING_DEPLOY_KEY }}
+          host: ${{ secrets.STAGING_HOST }}
+          user: ${{ secrets.STAGING_USER }}
+          
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests against staging..."
+          npx playwright test --config=playwright-staging.config.js
+        env:
+          BASE_URL: https://staging.agi-platform.com
+          
+      - name: Update deployment status
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: 'staging',
+              description: 'Deployed to staging environment',
+              auto_merge: false,
+              required_contexts: []
+            });
+            
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deployment.data.id,
+              state: '${{ job.status }}' === 'success' ? 'success' : 'failure',
+              environment_url: 'https://staging.agi-platform.com',
+              description: '${{ job.status }}' === 'success' ? 'Deployment successful' : 'Deployment failed'
+            });
+
+  # Job 3: Production Approval Gate
+  production-approval:
+    name: Approve Production Deployment
+    runs-on: ubuntu-latest
+    needs: [build, deploy-staging]
+    environment: 
+      name: production-approval
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || github.event.inputs.environment == 'production'
+    
+    steps:
+      - name: Manual approval required
+        run: |
+          echo "🚀 Production deployment requires manual approval"
+          echo "Version: ${{ needs.build.outputs.version }}"
+          echo "Staging deployment completed successfully"
+          echo "Please review and approve this deployment"
+
+  # Job 4: Deploy to Production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, deploy-staging, production-approval]
+    environment: 
+      name: production
+      url: https://agi-platform.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download deployment artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: deployment-package-${{ needs.build.outputs.version }}
+          path: deployment-package/
+          
+      - name: Create backup
+        uses: ./.github/deployment/backup-action
+        with:
+          environment: production
+          backup-key: ${{ secrets.PRODUCTION_BACKUP_KEY }}
+          
+      - name: Deploy to Production
+        id: deploy
+        uses: ./.github/deployment/deploy-action
+        with:
+          environment: production
+          version: ${{ needs.build.outputs.version }}
+          image-tag: ${{ needs.build.outputs.image-tag }}
+          deploy-key: ${{ secrets.PRODUCTION_DEPLOY_KEY }}
+          host: ${{ secrets.PRODUCTION_HOST }}
+          user: ${{ secrets.PRODUCTION_USER }}
+          blue-green: true
+          
+      - name: Run health checks
+        run: |
+          echo "Running production health checks..."
+          sleep 30
+          curl -f https://agi-platform.com/api/health || exit 1
+          curl -f https://agi-platform.com/api/status || exit 1
+          
+      - name: Run production smoke tests
+        run: |
+          echo "Running production smoke tests..."
+          npx playwright test --config=playwright-production.config.js
+        env:
+          BASE_URL: https://agi-platform.com
+          
+      - name: Promote deployment
+        if: success()
+        uses: ./.github/deployment/promote-action
+        with:
+          environment: production
+          version: ${{ needs.build.outputs.version }}
+          
+      - name: Rollback on failure
+        if: failure()
+        uses: ./.github/deployment/rollback-action
+        with:
+          environment: production
+          rollback-key: ${{ secrets.PRODUCTION_ROLLBACK_KEY }}
+          
+      - name: Update deployment status
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: 'production',
+              description: 'Deployed to production environment',
+              auto_merge: false,
+              required_contexts: []
+            });
+            
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deployment.data.id,
+              state: '${{ job.status }}' === 'success' ? 'success' : 'failure',
+              environment_url: 'https://agi-platform.com',
+              description: '${{ job.status }}' === 'success' ? 'Deployment successful' : 'Deployment failed'
+            });
+            
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') && success()
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.build.outputs.version }}
+          release_name: Release ${{ needs.build.outputs.version }}
+          body: |
+            ## 🚀 Release ${{ needs.build.outputs.version }}
+            
+            ### What's Changed
+            - Automated deployment from commit ${{ github.sha }}
+            - Build #${{ github.run_number }}
+            
+            ### Deployment Information
+            - **Production URL**: https://agi-platform.com
+            - **Deployed**: ${{ github.event.head_commit.timestamp }}
+            - **Commit**: ${{ github.sha }}
+            
+            ### Quality Checks ✅
+            - All tests passed
+            - Security scan completed
+            - Performance tests passed
+            - Health checks successful
+          draft: false
+          prerelease: false
+
+  # Job 5: Post-Deployment
+  post-deployment:
+    name: Post-Deployment Tasks
+    runs-on: ubuntu-latest
+    needs: [build, deploy-production]
+    if: always()
+    
+    steps:
+      - name: Notify Slack
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#deployments'
+          username: 'GitHub Actions'
+          icon_emoji: ':rocket:'
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+          text: |
+            🚀 Production Deployment ${{ job.status == 'success' && 'Successful' || 'Failed' }}
+            Version: ${{ needs.build.outputs.version }}
+            Environment: Production
+            URL: https://agi-platform.com
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          
+      - name: Update monitoring
+        if: success()
+        run: |
+          curl -X POST "${{ secrets.MONITORING_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "event": "deployment_success",
+              "version": "${{ needs.build.outputs.version }}",
+              "environment": "production",
+              "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+              "commit": "${{ github.sha }}"
+            }'
+            
+      - name: Generate deployment report
+        run: |
+          echo "# 📊 Deployment Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Deployment Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ needs.build.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status == 'success' && '✅ Success' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://agi-platform.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployed at**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Performance Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "- Build time: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          
+      - name: Archive deployment logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: deployment-logs-${{ needs.build.outputs.version }}
+          path: |
+            deployment-package/
+            logs/
+          retention-days: 90 

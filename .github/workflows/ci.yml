@@ -1,0 +1,439 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '18'
+  PNPM_VERSION: '8'
+
+jobs:
+  # Job 1: Code Quality and Linting
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+            
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Lint code
+        run: pnpm run lint
+        
+      - name: Check code formatting
+        run: pnpm run format:check
+        
+      - name: Type check
+        run: pnpm run type-check
+
+  # Job 2: Frontend Tests
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+            
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Run unit tests
+        run: pnpm run test:unit
+        
+      - name: Run integration tests
+        run: pnpm run test:integration
+        
+      - name: Generate test coverage
+        run: pnpm run test:coverage
+        
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
+          fail_ci_if_error: false
+
+  # Job 3: Backend Tests
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      sqlite:
+        image: alpine:latest
+        options: >-
+          --health-cmd "echo 'SQLite ready'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Install backend dependencies
+        working-directory: ./server
+        run: npm ci
+        
+      - name: Run backend tests
+        working-directory: ./server
+        run: npm run test
+        env:
+          NODE_ENV: test
+          DB_NAME: test.db
+          
+      - name: Run API integration tests
+        working-directory: ./server
+        run: npm run test:integration
+        env:
+          NODE_ENV: test
+          DB_NAME: test_integration.db
+
+  # Job 4: Security Scanning
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Run security audit
+        run: pnpm audit
+        
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+          
+      - name: Upload Snyk results to GitHub
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: snyk.sarif
+
+  # Job 5: Build Verification
+  build:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    needs: [quality, frontend-tests]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+            
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Build application
+        run: pnpm run build
+        env:
+          VITE_APP_VERSION: ${{ github.sha }}
+          VITE_BUILD_TIME: ${{ github.run_number }}
+          
+      - name: Verify build artifacts
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "Build directory not found!"
+            exit 1
+          fi
+          if [ ! -f "dist/index.html" ]; then
+            echo "Index.html not found in build!"
+            exit 1
+          fi
+          echo "Build verification successful!"
+          
+      - name: Calculate bundle size
+        run: |
+          echo "## Bundle Size Report" >> $GITHUB_STEP_SUMMARY
+          echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+          find dist -name "*.js" -o -name "*.css" | head -20 | while read file; do
+            size=$(du -h "$file" | cut -f1)
+            echo "| $file | $size |" >> $GITHUB_STEP_SUMMARY
+          done
+          
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts-${{ github.sha }}
+          path: dist/
+          retention-days: 7
+
+  # Job 6: Performance Tests
+  performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [build]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts-${{ github.sha }}
+          path: dist/
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.12.x
+        
+      - name: Serve built app
+        run: |
+          npx serve -s dist -l 3000 &
+          sleep 5
+          
+      - name: Run Lighthouse CI
+        run: lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: lighthouse-results-${{ github.sha }}
+          path: .lighthouseci/
+          retention-days: 7
+
+  # Job 7: E2E Tests
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: [build, backend-tests]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts-${{ github.sha }}
+          path: dist/
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Install Playwright
+        run: |
+          pnpm add -D @playwright/test
+          npx playwright install --with-deps
+          
+      - name: Start backend server
+        working-directory: ./server
+        run: |
+          npm ci
+          npm start &
+          sleep 10
+        env:
+          NODE_ENV: test
+          PORT: 5001
+          
+      - name: Start frontend server
+        run: |
+          npx serve -s dist -l 3000 &
+          sleep 5
+          
+      - name: Run E2E tests
+        run: npx playwright test
+        env:
+          BASE_URL: http://localhost:3000
+          API_URL: http://localhost:5001
+          
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: e2e-results-${{ github.sha }}
+          path: test-results/
+          retention-days: 7
+          
+      - name: Upload E2E screenshots
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: e2e-screenshots-${{ github.sha }}
+          path: test-results/
+          retention-days: 7
+
+  # Final Status Check
+  ci-status:
+    name: CI Status Check
+    runs-on: ubuntu-latest
+    needs: [quality, frontend-tests, backend-tests, security, build, performance, e2e-tests]
+    if: always()
+    
+    steps:
+      - name: Check CI Status
+        run: |
+          if [[ "${{ needs.quality.result }}" == "success" && 
+                "${{ needs.frontend-tests.result }}" == "success" && 
+                "${{ needs.backend-tests.result }}" == "success" && 
+                "${{ needs.build.result }}" == "success" ]]; then
+            echo "✅ All CI checks passed!"
+            echo "## ✅ CI Pipeline Successful" >> $GITHUB_STEP_SUMMARY
+            echo "All quality checks, tests, and builds completed successfully." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some CI checks failed!"
+            echo "## ❌ CI Pipeline Failed" >> $GITHUB_STEP_SUMMARY
+            echo "One or more checks failed. Please review the job outputs." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+      - name: Post status to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && comment.body.includes('CI Pipeline Status')
+            );
+            
+            const status = "${{ needs.quality.result }}" === "success" && 
+                          "${{ needs.frontend-tests.result }}" === "success" && 
+                          "${{ needs.backend-tests.result }}" === "success" && 
+                          "${{ needs.build.result }}" === "success" ? "✅ PASSED" : "❌ FAILED";
+            
+            const body = `## 🚀 CI Pipeline Status: ${status}
+            
+            | Check | Status |
+            |-------|---------|
+            | Code Quality | ${{ needs.quality.result == 'success' && '✅' || '❌' }} |
+            | Frontend Tests | ${{ needs.frontend-tests.result == 'success' && '✅' || '❌' }} |
+            | Backend Tests | ${{ needs.backend-tests.result == 'success' && '✅' || '❌' }} |
+            | Security Scan | ${{ needs.security.result == 'success' && '✅' || '⚠️' }} |
+            | Build | ${{ needs.build.result == 'success' && '✅' || '❌' }} |
+            | Performance | ${{ needs.performance.result == 'success' && '✅' || '⚠️' }} |
+            | E2E Tests | ${{ needs.e2e-tests.result == 'success' && '✅' || '⚠️' }} |
+            
+            **Commit:** \`${{ github.sha }}\`
+            **Build #:** ${{ github.run_number }}
+            `;
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            } 

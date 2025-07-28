@@ -1,0 +1,12 @@
+SQLite bindings not available, using mock database
+Using mock database and User model
+Using mock database connection
+✅ SQLite Database Connected Successfully
+Mock database sync completed
+✅ Database synchronized successfully
+🚀 AGI Learning Platform Server running on port 5001
+📊 Environment: development
+🔗 Health check: http://localhost:5001/api/health
+[0mGET /api/health [32m200[0m 1.489 ms - 139[0m
+[0mGET /api/health [32m200[0m 0.149 ms - 139[0m
+[0mGET /api/health [32m200[0m 0.124 ms - 139[0m

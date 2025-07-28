@@ -21,6 +21,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { getAllLessons } from '../data/roadmapData';
+import { lessonData } from '../data/lessonData';
 
 const GlobalSearch = ({ onNavigate, onClose }) => {
   const [query, setQuery] = useState('');
@@ -89,75 +91,65 @@ const GlobalSearch = ({ onNavigate, onClose }) => {
   };
 
   const getAllContent = () => {
-    // This would typically come from your content management system
-    // For now, we'll use sample data
-    return [
-      {
-        id: 'ai-engineer-neural-networks',
-        title: 'Neural Networks Fundamentals',
-        category: 'AI Engineer',
+    const roadmapLessons = getAllLessons();
+    const allContent = [];
+    
+    // Add roadmap lessons
+    roadmapLessons.forEach(lesson => {
+      allContent.push({
+        id: `${lesson.category}-${lesson.id}`,
+        title: lesson.title,
+        category: lesson.category,
         type: 'lesson',
-        difficulty: 'intermediate',
-        description: 'Learn the basics of neural networks and deep learning',
-        tags: ['neural networks', 'deep learning', 'AI', 'machine learning'],
-        path: '/ai-engineer/neural-networks',
+        difficulty: lesson.difficulty,
+        description: lesson.description,
+        tags: lesson.tags,
+        path: `/category/${lesson.category}/${lesson.subCategory}/${lesson.id}`,
         bookmarked: false,
         completed: false,
-        lastAccessed: '2024-01-15'
-      },
-      {
-        id: 'data-analyst-visualization',
-        title: 'Data Visualization with Python',
-        category: 'Data Analyst',
-        type: 'lesson',
-        difficulty: 'beginner',
-        description: 'Create compelling visualizations using matplotlib and seaborn',
-        tags: ['data visualization', 'python', 'matplotlib', 'seaborn'],
-        path: '/data-analyst/visualization',
-        bookmarked: true,
-        completed: true,
-        lastAccessed: '2024-01-10'
-      },
-      {
-        id: 'ai-scientist-statistics',
-        title: 'Statistical Analysis for AI',
-        category: 'AI Data Scientist',
-        type: 'lesson',
-        difficulty: 'advanced',
-        description: 'Advanced statistical methods for AI applications',
-        tags: ['statistics', 'AI', 'data science', 'probability'],
-        path: '/ai-scientist/statistics',
-        bookmarked: false,
-        completed: false,
-        lastAccessed: '2024-01-12'
-      },
-      {
-        id: 'red-teaming-adversarial',
-        title: 'Adversarial Machine Learning',
-        category: 'AI Red Teaming',
-        type: 'lesson',
-        difficulty: 'advanced',
-        description: 'Understanding and defending against adversarial attacks',
-        tags: ['adversarial', 'security', 'machine learning', 'defense'],
-        path: '/red-teaming/adversarial',
-        bookmarked: true,
-        completed: false,
-        lastAccessed: '2024-01-14'
-      },
-      {
-        id: 'agents-multi-agent',
-        title: 'Multi-Agent Systems',
-        category: 'AI Agents',
-        type: 'lesson',
-        difficulty: 'intermediate',
-        description: 'Building intelligent multi-agent systems',
-        tags: ['agents', 'multi-agent', 'AI', 'coordination'],
-        path: '/agents/multi-agent',
-        bookmarked: false,
-        completed: true,
-        lastAccessed: '2024-01-08'
-      }
-    ];
+        lastAccessed: new Date().toISOString().split('T')[0]
+      });
+    });
+    
+    // Add detailed lessons from lessonData
+    Object.entries(lessonData).forEach(([subCategory, lessons]) => {
+      Object.entries(lessons).forEach(([lessonId, lesson]) => {
+        allContent.push({
+          id: `${subCategory}-${lessonId}`,
+          title: lesson.title,
+          category: subCategory.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          type: 'lesson',
+          difficulty: lesson.difficulty,
+          description: lesson.description,
+          tags: lesson.learningObjectives || [],
+          path: `/category/${subCategory}/${subCategory}/${lessonId}`,
+          bookmarked: false,
+          completed: false,
+          lastAccessed: new Date().toISOString().split('T')[0]
+        });
+        
+        // Add individual sections as searchable content
+        if (lesson.sections) {
+          lesson.sections.forEach(section => {
+            allContent.push({
+              id: `${subCategory}-${lessonId}-${section.id}`,
+              title: `${lesson.title}: ${section.title}`,
+              category: subCategory.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+              type: section.type || 'content',
+              difficulty: lesson.difficulty,
+              description: section.content?.text?.substring(0, 150) + '...' || 'Interactive lesson section',
+              tags: section.content?.keyPoints || [],
+              path: `/category/${subCategory}/${subCategory}/${lessonId}#${section.id}`,
+              bookmarked: false,
+              completed: section.completed || false,
+              lastAccessed: new Date().toISOString().split('T')[0]
+            });
+          });
+        }
+      });
+    });
+    
+    return allContent;
   };
 
   const searchContent = (content, query) => {

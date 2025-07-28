@@ -158,6 +158,94 @@ Eigenvalues and eigenvectors are used in:
               }
             ]
           }
+        },
+        {
+          id: 'advanced-matrix-operations',
+          title: 'Advanced Matrix Operations',
+          duration: '25 min',
+          type: 'content',
+          completed: false,
+          content: {
+            text: `Advanced matrix operations form the backbone of many AI algorithms. Understanding decompositions, transformations, and special matrices is crucial for deeper AI applications.
+
+## Matrix Decompositions
+
+**Singular Value Decomposition (SVD)**
+SVD breaks down any matrix into three simpler matrices: A = UΣV^T
+
+**LU Decomposition**
+Decomposes a matrix into Lower and Upper triangular matrices for efficient solving.
+
+**QR Decomposition**
+Breaks a matrix into an orthogonal matrix Q and an upper triangular matrix R.
+
+## Special Matrices in AI
+
+**Covariance Matrices**: Measure relationships between variables
+**Gram Matrices**: Used in kernel methods and SVMs
+**Adjacency Matrices**: Represent graph structures in neural networks
+
+## Applications in Deep Learning
+
+- **Weight Initialization**: Using orthogonal matrices for stable training
+- **Regularization**: Matrix norms for preventing overfitting
+- **Attention Mechanisms**: Query, Key, Value matrix operations in transformers`,
+            keyPoints: [
+              'SVD is fundamental to dimensionality reduction techniques',
+              'Matrix decompositions enable efficient computation',
+              'Special matrices have specific AI applications',
+              'Matrix operations are optimized in modern AI frameworks'
+            ],
+            realWorldExamples: [
+              {
+                title: 'Recommendation Systems',
+                description: 'SVD and matrix factorization for collaborative filtering',
+                industry: 'E-commerce'
+              },
+              {
+                title: 'Image Compression',
+                description: 'SVD for lossy image compression while preserving quality',
+                industry: 'Computer Vision'
+              },
+              {
+                title: 'Natural Language Processing',
+                description: 'Matrix operations in transformer attention mechanisms',
+                industry: 'NLP'
+              }
+            ]
+          }
+        },
+        {
+          id: 'linear-algebra-quiz',
+          title: 'Linear Algebra Knowledge Check',
+          duration: '15 min',
+          type: 'quiz',
+          completed: false,
+          quiz: {
+            questions: [
+              {
+                id: 'vector-operation',
+                question: 'What is the dot product of vectors [2, 3, 1] and [1, 4, 2]?',
+                options: ['14', '16', '18', '12'],
+                correct: 1,
+                explanation: 'Dot product = (2×1) + (3×4) + (1×2) = 2 + 12 + 2 = 16'
+              },
+              {
+                id: 'matrix-multiplication',
+                question: 'Which property does NOT hold for matrix multiplication?',
+                options: ['Associative', 'Commutative', 'Distributive', 'Compatible with scalar multiplication'],
+                correct: 1,
+                explanation: 'Matrix multiplication is NOT commutative: AB ≠ BA in general'
+              },
+              {
+                id: 'eigenvalues-application',
+                question: 'Eigenvalues and eigenvectors are primarily used in which AI technique?',
+                options: ['Principal Component Analysis', 'Gradient Descent', 'Backpropagation', 'Cross-validation'],
+                correct: 0,
+                explanation: 'PCA uses eigenvalues and eigenvectors of the covariance matrix to find principal components'
+              }
+            ]
+          }
         }
       ]
     }
@@ -804,6 +892,616 @@ Measures how well the model explains the variance in the target variable.`,
                 ],
                 correctAnswer: 2,
                 explanation: 'F1-Score balances precision and recall, making it suitable for imbalanced datasets.'
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  // COMPUTER VISION
+  'computer-vision': {
+    'intro-lesson': {
+      title: 'Computer Vision Fundamentals',
+      description: 'Master image processing, feature extraction, and deep learning for computer vision',
+      duration: '90 min',
+      difficulty: 'Intermediate',
+      progress: 0,
+      learningObjectives: [
+        'Understand image representation and processing',
+        'Learn feature extraction techniques',
+        'Master convolutional neural networks (CNNs)',
+        'Apply computer vision to real-world problems'
+      ],
+      prerequisites: ['Deep Learning', 'Linear Algebra', 'Python Programming'],
+      sections: [
+        {
+          id: 'image-basics',
+          title: 'Digital Image Fundamentals',
+          duration: '20 min',
+          type: 'content',
+          completed: false,
+          content: {
+            text: `Computer Vision enables machines to interpret and understand visual information from the world. Let's start with the basics of how computers "see" images.
+
+## Digital Image Representation
+
+**Pixels and Arrays**
+- Images are represented as multi-dimensional arrays
+- Grayscale: 2D array (height × width)
+- Color (RGB): 3D array (height × width × 3 channels)
+- Each pixel value represents intensity (0-255 for 8-bit images)
+
+**Color Spaces**
+- **RGB**: Red, Green, Blue - additive color model
+- **HSV**: Hue, Saturation, Value - intuitive for human perception
+- **LAB**: Lightness, A (green-red), B (blue-yellow) - perceptually uniform
+
+## Image Operations
+
+**Filtering and Convolution**
+- Convolution applies filters to detect features
+- Common filters: edge detection, blurring, sharpening
+- Kernels define the operation (3×3, 5×5 matrices)
+
+**Morphological Operations**
+- Erosion and dilation for shape analysis
+- Opening and closing for noise reduction
+- Useful for binary image processing`,
+            keyPoints: [
+              'Images are numerical arrays that computers can process',
+              'Different color spaces serve different purposes',
+              'Convolution is fundamental to feature detection',
+              'Preprocessing improves algorithm performance'
+            ],
+            realWorldExamples: [
+              {
+                title: 'Medical Imaging',
+                description: 'X-ray and MRI analysis for disease detection',
+                industry: 'Healthcare'
+              },
+              {
+                title: 'Autonomous Vehicles',
+                description: 'Real-time object detection and lane recognition',
+                industry: 'Automotive'
+              },
+              {
+                title: 'Quality Control',
+                description: 'Automated defect detection in manufacturing',
+                industry: 'Manufacturing'
+              }
+            ]
+          }
+        },
+        {
+          id: 'feature-extraction',
+          title: 'Feature Extraction & Detection',
+          duration: '25 min',
+          type: 'content',
+          completed: false,
+          content: {
+            text: `Feature extraction identifies distinctive patterns in images that can be used for recognition, matching, and analysis.
+
+## Traditional Feature Detectors
+
+**Edge Detection**
+- Sobel, Canny, Prewitt operators
+- Detect boundaries between different regions
+- Foundation for shape recognition
+
+**Corner Detection**
+- Harris corner detector
+- Shi-Tomasi method
+- Important for object tracking and 3D reconstruction
+
+**Keypoint Descriptors**
+- **SIFT** (Scale-Invariant Feature Transform)
+- **SURF** (Speeded-Up Robust Features)
+- **ORB** (Oriented FAST and Rotated BRIEF)
+
+## Modern Deep Learning Features
+
+**Convolutional Features**
+- Automatically learned through training
+- Hierarchical feature representation
+- More robust than hand-crafted features
+
+**Transfer Learning**
+- Use pre-trained CNN features
+- Fine-tune for specific tasks
+- Reduces training time and data requirements`,
+            keyPoints: [
+              'Traditional methods use hand-crafted features',
+              'Deep learning automatically learns optimal features',
+              'Different features are suitable for different tasks',
+              'Transfer learning leverages existing knowledge'
+            ],
+            realWorldExamples: [
+              {
+                title: 'Face Recognition',
+                description: 'SIFT features for facial landmark detection',
+                industry: 'Security'
+              },
+              {
+                title: 'Augmented Reality',
+                description: 'Feature matching for object tracking',
+                industry: 'Entertainment'
+              }
+            ]
+          }
+        },
+        {
+          id: 'cnn-architecture',
+          title: 'Convolutional Neural Networks',
+          duration: '30 min',
+          type: 'content',
+          completed: false,
+          content: {
+            text: `CNNs are the backbone of modern computer vision, designed specifically to process grid-like data such as images.
+
+## CNN Architecture Components
+
+**Convolutional Layers**
+- Apply learnable filters to detect features
+- Preserve spatial relationships in images
+- Parameters: filter size, stride, padding
+
+**Pooling Layers**
+- Reduce spatial dimensions
+- Max pooling: takes maximum value in region
+- Average pooling: takes average value
+- Provides translation invariance
+
+**Fully Connected Layers**
+- Traditional neural network layers
+- Usually at the end for classification
+- Flatten spatial features to vectors
+
+## Popular CNN Architectures
+
+**LeNet-5 (1998)**
+- First successful CNN for digit recognition
+- Simple architecture: Conv → Pool → Conv → Pool → FC
+
+**AlexNet (2012)**
+- Won ImageNet competition
+- Introduced ReLU activation and dropout
+- Deeper network with 8 layers
+
+**VGG (2014)**
+- Very deep networks (16-19 layers)
+- Small 3×3 filters throughout
+- Demonstrated importance of depth
+
+**ResNet (2015)**
+- Introduced skip connections
+- Solved vanishing gradient problem
+- Enabled training of very deep networks (152+ layers)
+
+**Modern Architectures**
+- **Inception**: Multi-scale feature extraction
+- **EfficientNet**: Balanced scaling of depth, width, resolution
+- **Vision Transformers**: Self-attention for images`,
+            keyPoints: [
+              'CNNs preserve spatial structure of images',
+              'Hierarchical feature learning from simple to complex',
+              'Architecture design greatly impacts performance',
+              'Skip connections enable training deeper networks'
+            ],
+            realWorldExamples: [
+              {
+                title: 'ImageNet Classification',
+                description: 'ResNet achieves human-level accuracy on 1000 classes',
+                industry: 'Research'
+              },
+              {
+                title: 'Medical Diagnosis',
+                description: 'CNN models detect skin cancer from dermoscopy images',
+                industry: 'Healthcare'
+              }
+            ]
+          }
+        },
+        {
+          id: 'cv-applications',
+          title: 'Computer Vision Applications',
+          duration: '15 min',
+          type: 'content',
+          completed: false,
+          content: {
+            text: `Computer vision has transformed numerous industries through practical applications that solve real-world problems.
+
+## Object Detection & Recognition
+
+**Object Classification**
+- Identifying what objects are present in images
+- Single object per image classification
+- Applications: content filtering, medical diagnosis
+
+**Object Detection**
+- Locating and classifying multiple objects
+- Bounding box regression + classification
+- Popular models: YOLO, R-CNN, SSD
+
+**Instance Segmentation**
+- Pixel-level object identification
+- Combines detection and segmentation
+- Useful for precise object boundaries
+
+## Advanced Applications
+
+**Facial Recognition**
+- Identity verification and authentication
+- Emotion recognition and analysis
+- Privacy and ethical considerations
+
+**Optical Character Recognition (OCR)**
+- Converting images of text to machine-readable text
+- Document digitization and processing
+- Real-time text translation
+
+**Autonomous Systems**
+- Self-driving cars and navigation
+- Drone path planning and obstacle avoidance
+- Robot vision and manipulation
+
+## Industry Impact
+
+**Healthcare**: Medical imaging, drug discovery, surgical assistance
+**Retail**: Visual search, inventory management, customer analytics
+**Agriculture**: Crop monitoring, yield prediction, automated harvesting
+**Entertainment**: Special effects, content creation, gaming`,
+            keyPoints: [
+              'CV applications span virtually every industry',
+              'Different tasks require different architectural approaches',
+              'Real-world deployment requires consideration of edge cases',
+              'Ethical implications must be carefully considered'
+            ],
+            realWorldExamples: [
+              {
+                title: 'Tesla Autopilot',
+                description: 'Multi-camera system for autonomous driving',
+                industry: 'Automotive'
+              },
+              {
+                title: 'Google Photos',
+                description: 'Automatic photo organization and search',
+                industry: 'Technology'
+              },
+              {
+                title: 'Amazon Go',
+                description: 'Cashier-less shopping with computer vision',
+                industry: 'Retail'
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  // NATURAL LANGUAGE PROCESSING
+  'natural-language-processing': {
+    'intro-lesson': {
+      title: 'Natural Language Processing Fundamentals',
+      description: 'Master text processing, language models, and NLP applications',
+      duration: '100 min',
+      difficulty: 'Intermediate',
+      progress: 0,
+      learningObjectives: [
+        'Understand text preprocessing and tokenization',
+        'Learn word embeddings and language representations',
+        'Master transformer architecture and attention mechanisms',
+        'Apply NLP to real-world text processing tasks'
+      ],
+      prerequisites: ['Machine Learning', 'Deep Learning', 'Python Programming'],
+      sections: [
+        {
+          id: 'text-preprocessing',
+          title: 'Text Preprocessing & Tokenization',
+          duration: '25 min',
+          type: 'content',
+          completed: false,
+          content: {
+            text: `Natural Language Processing enables computers to understand, interpret, and generate human language. The first step is converting raw text into a format machines can process.
+
+## Text Preprocessing Pipeline
+
+**Cleaning and Normalization**
+- Remove special characters, HTML tags, URLs
+- Convert to lowercase for consistency
+- Handle contractions (can't → cannot)
+- Normalize whitespace and punctuation
+
+**Tokenization**
+- Split text into individual words or subwords
+- **Word-level**: Split by spaces and punctuation
+- **Subword-level**: Byte Pair Encoding (BPE), WordPiece
+- **Character-level**: Individual characters as tokens
+
+**Stop Word Removal**
+- Remove common words (the, is, at, which)
+- Reduces noise but may lose important context
+- Task-dependent decision
+
+**Stemming and Lemmatization**
+- **Stemming**: Reduce words to root form (running → run)
+- **Lemmatization**: Reduce to dictionary form considering context
+- Helps reduce vocabulary size and improve matching
+
+## Advanced Preprocessing
+
+**Named Entity Recognition (NER)**
+- Identify and classify named entities (people, places, organizations)
+- Preserves important semantic information
+- Used for information extraction
+
+**Part-of-Speech (POS) Tagging**
+- Assign grammatical categories (noun, verb, adjective)
+- Helps understand sentence structure
+- Useful for parsing and syntax analysis`,
+            keyPoints: [
+              'Text must be cleaned and normalized before processing',
+              'Tokenization strategy affects model performance',
+              'Preprocessing choices depend on the specific task',
+              'Modern NLP often uses subword tokenization'
+            ],
+            realWorldExamples: [
+              {
+                title: 'Search Engines',
+                description: 'Query preprocessing for better search results',
+                industry: 'Technology'
+              },
+              {
+                title: 'Social Media Analytics',
+                description: 'Sentiment analysis of user posts and comments',
+                industry: 'Marketing'
+              },
+              {
+                title: 'Customer Support',
+                description: 'Automatic categorization of support tickets',
+                industry: 'Customer Service'
+              }
+            ]
+          }
+        },
+        {
+          id: 'word-embeddings',
+          title: 'Word Embeddings & Language Representations',
+          duration: '30 min',
+          type: 'content',
+          completed: false,
+          content: {
+            text: `Word embeddings convert words into dense vector representations that capture semantic meaning and relationships.
+
+## Traditional Approaches
+
+**One-Hot Encoding**
+- Binary vectors with single 1 and rest 0s
+- Sparse, high-dimensional representation
+- No semantic similarity information
+
+**TF-IDF (Term Frequency-Inverse Document Frequency)**
+- Weights words by frequency and rarity
+- Good for document similarity
+- Still sparse representation
+
+## Dense Word Embeddings
+
+**Word2Vec**
+- **Skip-gram**: Predict context words from target word
+- **CBOW**: Predict target word from context
+- Captures semantic relationships (king - man + woman ≈ queen)
+
+**GloVe (Global Vectors)**
+- Combines global matrix factorization and local context
+- Uses co-occurrence statistics
+- Often performs better on analogy tasks
+
+**FastText**
+- Extension of Word2Vec with subword information
+- Handles out-of-vocabulary words
+- Better for morphologically rich languages
+
+## Contextual Embeddings
+
+**ELMo (Embeddings from Language Models)**
+- Bidirectional LSTM language model
+- Context-dependent word representations
+- Same word has different embeddings in different contexts
+
+**BERT (Bidirectional Encoder Representations from Transformers)**
+- Transformer-based bidirectional model
+- Masked language modeling pre-training
+- State-of-the-art performance on many NLP tasks
+
+**GPT Family**
+- Generative Pre-trained Transformers
+- Autoregressive language modeling
+- Excellent for text generation tasks`,
+            keyPoints: [
+              'Dense embeddings capture semantic relationships',
+              'Contextual models understand word meaning in context',
+              'Pre-trained embeddings transfer knowledge across tasks',
+              'Different embedding methods suit different applications'
+            ],
+            realWorldExamples: [
+              {
+                title: 'Machine Translation',
+                description: 'Word embeddings help translate between languages',
+                industry: 'Technology'
+              },
+              {
+                title: 'Recommendation Systems',
+                description: 'Embed user preferences and item descriptions',
+                industry: 'E-commerce'
+              }
+            ]
+          }
+        },
+        {
+          id: 'transformer-architecture',
+          title: 'Transformer Architecture & Attention',
+          duration: '35 min',
+          type: 'content',
+          completed: false,
+          content: {
+            text: `Transformers revolutionized NLP by introducing the attention mechanism, enabling parallel processing and better long-range dependencies.
+
+## Attention Mechanism
+
+**Self-Attention**
+- Each word attends to all other words in the sequence
+- Computes attention weights based on relevance
+- Enables modeling of long-range dependencies
+
+**Multi-Head Attention**
+- Multiple attention heads capture different types of relationships
+- Each head learns different aspect of dependencies
+- Results are concatenated and projected
+
+**Scaled Dot-Product Attention**
+- Attention(Q,K,V) = softmax(QK^T/√d_k)V
+- Q (queries), K (keys), V (values) from input
+- Scaling prevents softmax saturation
+
+## Transformer Architecture
+
+**Encoder Stack**
+- 6 identical layers in original Transformer
+- Each layer: Multi-Head Attention + Feed-Forward Network
+- Residual connections and layer normalization
+
+**Decoder Stack**
+- 6 identical layers with additional encoder-decoder attention
+- Masked self-attention prevents looking ahead
+- Used for sequence generation tasks
+
+**Positional Encoding**
+- Adds position information to embeddings
+- Since attention has no inherent order awareness
+- Sine and cosine functions of different frequencies
+
+## Modern Transformer Variants
+
+**BERT (Encoder-only)**
+- Bidirectional encoding for understanding tasks
+- Masked language modeling pre-training
+- Fine-tuned for classification, NER, Q&A
+
+**GPT (Decoder-only)**
+- Autoregressive generation
+- Next token prediction pre-training
+- Excellent for text generation and completion
+
+**T5 (Text-to-Text Transfer Transformer)**
+- Treats all NLP tasks as text-to-text
+- Unified framework for various tasks
+- "Text-to-text" approach simplifies training`,
+            keyPoints: [
+              'Attention allows models to focus on relevant parts',
+              'Transformers enable parallel processing unlike RNNs',
+              'Pre-training + fine-tuning is the dominant paradigm',
+              'Different architectures suit different task types'
+            ],
+            realWorldExamples: [
+              {
+                title: 'ChatGPT/GPT-4',
+                description: 'Large language models for conversational AI',
+                industry: 'AI Services'
+              },
+              {
+                title: 'Google Search',
+                description: 'BERT improves search query understanding',
+                industry: 'Search'
+              },
+              {
+                title: 'Microsoft Translator',
+                description: 'Transformer models for real-time translation',
+                industry: 'Translation'
+              }
+            ]
+          }
+        },
+        {
+          id: 'nlp-applications',
+          title: 'NLP Applications & Use Cases',
+          duration: '10 min',
+          type: 'content',
+          completed: false,
+          content: {
+            text: `NLP has enabled breakthrough applications across industries, from search engines to virtual assistants.
+
+## Core NLP Tasks
+
+**Text Classification**
+- Sentiment analysis, spam detection, topic categorization
+- Binary, multi-class, or multi-label classification
+- Applications: content moderation, customer feedback analysis
+
+**Named Entity Recognition**
+- Extract entities like names, locations, organizations
+- Critical for information extraction and knowledge graphs
+- Used in document processing and search
+
+**Machine Translation**
+- Automatic translation between languages
+- Neural machine translation with attention mechanisms
+- Real-time communication and content localization
+
+**Question Answering**
+- Extract answers from text given questions
+- Reading comprehension and knowledge retrieval
+- Chatbots and virtual assistants
+
+## Advanced Applications
+
+**Text Summarization**
+- **Extractive**: Select important sentences from original text
+- **Abstractive**: Generate new summary text
+- News aggregation, document processing
+
+**Dialogue Systems**
+- Task-oriented: booking, customer service
+- Open-domain: general conversation
+- Combine NLU, dialogue management, and NLG
+
+**Code Generation**
+- Generate code from natural language descriptions
+- Programming assistance and automation
+- Examples: GitHub Copilot, CodeT5
+
+## Emerging Trends
+
+**Large Language Models (LLMs)**
+- GPT-3/4, PaLM, ChatGPT
+- Few-shot and zero-shot learning capabilities
+- Emergent abilities at scale
+
+**Multimodal Models**
+- Combine text with images, audio, video
+- Vision-language models (CLIP, DALL-E)
+- Richer understanding and generation`,
+            keyPoints: [
+              'NLP applications span numerous industries and use cases',
+              'Different tasks require different architectural approaches',
+              'Large models enable few-shot learning on new tasks',
+              'Multimodal AI is the next frontier'
+            ],
+            realWorldExamples: [
+              {
+                title: 'Grammarly',
+                description: 'AI-powered writing assistance and grammar checking',
+                industry: 'EdTech'
+              },
+              {
+                title: 'Amazon Alexa',
+                description: 'Voice-controlled virtual assistant with NLP',
+                industry: 'Consumer Electronics'
+              },
+              {
+                title: 'DeepL Translator',
+                description: 'High-quality neural machine translation',
+                industry: 'Translation Services'
               }
             ]
           }

@@ -5,11 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Search, ZoomIn, ZoomOut, RotateCcw, Plus, Minus, Filter, Info } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 import { useGamification } from '../contexts/GamificationContext';
 
-const ConceptGraph = ({ lessonId, concepts = [], onConceptClick }) => {
-  const { user } = useAuth();
+const ConceptGraph = ({ concepts = [], onConceptClick }) => {
   const { addXP } = useGamification();
   const canvasRef = useRef(null);
   const [nodes, setNodes] = useState([]);
@@ -20,8 +18,8 @@ const ConceptGraph = ({ lessonId, concepts = [], onConceptClick }) => {
   const [filterType, setFilterType] = useState('all');
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [_isDragging, setIsDragging] = useState(false);
+  const [_dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [showInfo, setShowInfo] = useState(false);
 
   // Initialize graph from concepts
@@ -61,7 +59,6 @@ const ConceptGraph = ({ lessonId, concepts = [], onConceptClick }) => {
 
   const generateEdges = (nodes) => {
     const edges = [];
-    const nodeMap = new Map(nodes.map(node => [node.id, node]));
 
     nodes.forEach((node, index) => {
       // Connect to next concept in sequence
@@ -268,14 +265,6 @@ const ConceptGraph = ({ lessonId, concepts = [], onConceptClick }) => {
     setDragStart({ x: event.clientX - pan.x, y: event.clientY - pan.y });
   };
 
-  const handleMouseMove = (event) => {
-    if (isDragging) {
-      setPan({
-        x: event.clientX - dragStart.x,
-        y: event.clientY - dragStart.y
-      });
-    }
-  };
 
   const handleMouseUp = () => {
     setIsDragging(false);

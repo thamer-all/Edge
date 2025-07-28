@@ -23,7 +23,7 @@ class ErrorBoundary extends React.Component {
     };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError() {
     return { hasError: true };
   }
 
@@ -96,7 +96,7 @@ URL: ${window.location.href}
 
   render() {
     if (this.state.hasError) {
-      const isDevelopment = process.env.NODE_ENV === 'development';
+      const isDevelopment = import.meta.env.DEV;
       
       return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4">

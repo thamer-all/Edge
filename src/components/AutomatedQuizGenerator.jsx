@@ -21,7 +21,6 @@ import {
   BarChart3,
   Lightbulb
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 import { useGamification } from '../contexts/GamificationContext';
 
 const AutomatedQuizGenerator = ({ currentLesson, currentSection, userPerformance, onQuizGenerated }) => {
@@ -35,7 +34,6 @@ const AutomatedQuizGenerator = ({ currentLesson, currentSection, userPerformance
   });
   const [generationProgress, setGenerationProgress] = useState(0);
   const [quizStats, setQuizStats] = useState({});
-  const { user } = useAuth();
   const { addXP } = useGamification();
 
   useEffect(() => {
@@ -49,7 +47,6 @@ const AutomatedQuizGenerator = ({ currentLesson, currentSection, userPerformance
     const performance = userPerformance || {};
     const avgScore = performance.averageScore || 70;
     const weakTopics = performance.weakTopics || [];
-    const strongTopics = performance.strongTopics || [];
 
     // Adjust difficulty based on performance
     let adaptiveDifficulty = 'medium';
@@ -110,7 +107,6 @@ const AutomatedQuizGenerator = ({ currentLesson, currentSection, userPerformance
 
   const generateQuestionsFromContent = async () => {
     const lessonContent = currentLesson?.sections[currentSection]?.content || '';
-    const lessonTitle = currentLesson?.sections[currentSection]?.title || '';
     
     // Extract key concepts from content
     const concepts = extractKeyConcepts(lessonContent);

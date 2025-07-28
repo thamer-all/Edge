@@ -22,6 +22,9 @@ const LessonPage = lazy(() => import('./components/LessonPage'));
 const CategoryPage = lazy(() => import('./components/CategoryPage'));
 const ProgressDashboard = lazy(() => import('./components/ProgressDashboard'));
 const AdvancedAnalyticsDashboard = lazy(() => import('./components/AdvancedAnalyticsDashboard'));
+const AboutPage = lazy(() => import('./components/AboutPage'));
+const HelpPage = lazy(() => import('./components/HelpPage'));
+const ContactPage = lazy(() => import('./components/ContactPage'));
 
 // Loading component
 const LoadingFallback = () => (
@@ -49,8 +52,13 @@ function App() {
                           <Route path="/dashboard" element={<Dashboard />} />
                           <Route path="/lesson/:lessonId" element={<LessonPage />} />
                           <Route path="/category/:categoryId" element={<CategoryPage />} />
-                          <Route path="/progress" element={<ProgressDashboard />} />
+                          <Route path="/category/:categoryId/:subCategoryId" element={<CategoryPage />} />
+                          <Route path="/category/:categoryId/:subCategoryId/:lessonId" element={<LessonPage />} />
+                          <Route path="/progress" element={<Navigate to="/dashboard" replace />} />
                           <Route path="/analytics" element={<AdvancedAnalyticsDashboard />} />
+                          <Route path="/about" element={<AboutPage />} />
+                          <Route path="/help" element={<HelpPage />} />
+                          <Route path="/contact" element={<ContactPage />} />
                           <Route path="*" element={<Navigate to="/dashboard" replace />} />
                         </Routes>
                       </Suspense>

@@ -163,9 +163,15 @@ export const useSwipeNavigation = (navigate) => {
 export const usePullToRefresh = (onRefresh) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
+  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const refreshThreshold = 100;
 
-  const handleSwipeDown = (event) => {
+  const handleTouchStart = (event) => {
+    const touch = event.touches[0];
+    setStartPos({ x: touch.clientX, y: touch.clientY });
+  };
+
+  const handleSwipeDown = () => {
     if (pullDistance > refreshThreshold && !isRefreshing) {
       setIsRefreshing(true);
       onRefresh().finally(() => {
@@ -187,6 +193,9 @@ export const usePullToRefresh = (onRefresh) => {
   return {
     isRefreshing,
     pullDistance,
-    refreshThreshold
+    refreshThreshold,
+    handleTouchStart,
+    handleTouchMove,
+    handleSwipeDown
   };
 }; 

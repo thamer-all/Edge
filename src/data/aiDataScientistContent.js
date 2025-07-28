@@ -1,5 +1,5 @@
 // Real AI Data Scientist Learning Content
-export const aiDataScientistContent = {
+const aiDataScientistContent = {
   fundamentals: {
     statistics: {
       'inferential-statistics': {
@@ -32,7 +32,7 @@ Hypothesis testing is the foundation of statistical inference, allowing us to ma
 4. **Make Decision**
    - Reject or fail to reject H₀
 
-\`\`\`python
+```python
 import numpy as np
 import scipy.stats as stats
 import matplotlib.pyplot as plt
@@ -66,12 +66,12 @@ observed_heads = 65
 result = coin_flip_test(n_flips, observed_heads)
 print(f"P-value: {result['p_value']:.4f}")
 print(f"Decision: {result['decision']}")
-\`\`\`
+```
 
 ## Types of Hypothesis Tests
 
 ### 1. Z-Test (Large Samples)
-\`\`\`python
+```python
 def z_test(sample_mean, pop_mean, pop_std, sample_size, alpha=0.05):
     """
     Perform z-test for population mean
@@ -104,10 +104,10 @@ result = z_test(sample_mean, pop_mean, pop_std, sample_size)
 print(f"Z-statistic: {result['z_statistic']:.3f}")
 print(f"P-value: {result['p_value']:.4f}")
 print(f"Decision: {result['decision']}")
-\`\`\`
+```
 
 ### 2. T-Test (Small Samples)
-\`\`\`python
+```python
 def t_test_one_sample(data, pop_mean, alpha=0.05):
     """
     Perform one-sample t-test
@@ -133,13 +133,13 @@ result = t_test_one_sample(sample_data, 50)
 print(f"T-statistic: {result['t_statistic']:.3f}")
 print(f"P-value: {result['p_value']:.4f}")
 print(f"Decision: {result['decision']}")
-\`\`\`
+```
 
 ## Confidence Intervals
 
 Confidence intervals provide a range of plausible values for population parameters:
 
-\`\`\`python
+```python
 def confidence_interval(data, confidence=0.95):
     """
     Calculate confidence interval for population mean
@@ -170,13 +170,13 @@ sample_data = [10, 12, 15, 18, 20, 22, 25, 28, 30, 32]
 ci_result = confidence_interval(sample_data, 0.95)
 print(f"Sample mean: {ci_result['mean']:.2f}")
 print(f"95% CI: ({ci_result['confidence_interval'][0]:.2f}, {ci_result['confidence_interval'][1]:.2f})")
-\`\`\`
+```
 
 ## Practice Exercise
 
 Create a comprehensive hypothesis testing function:
 
-\`\`\`python
+```python
 def comprehensive_hypothesis_test(data, null_value, test_type='t', alpha=0.05):
     """
     Perform comprehensive hypothesis testing
@@ -220,7 +220,7 @@ result = comprehensive_hypothesis_test(test_data, 50, 't', 0.05)
 print("Hypothesis Test Results:")
 for key, value in result.items():
     print(f"{key}: {value}")
-\`\`\`
+```
             `,
             exercises: [
               {
@@ -282,7 +282,7 @@ The logistic function (sigmoid) transforms linear combinations to probabilities:
 
 Where z = β₀ + β₁x₁ + β₂x₂ + ... + βₙxₙ
 
-\`\`\`python
+```python
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
@@ -340,12 +340,12 @@ def plot_decision_boundary(X, y, model):
     plt.show()
 
 plot_decision_boundary(X_test, y_test, model)
-\`\`\`
+```
 
 ## Model Interpretation
 
 ### Coefficients and Odds Ratios
-\`\`\`python
+```python
 def interpret_logistic_model(model, feature_names=None):
     """
     Interpret logistic regression coefficients
@@ -354,7 +354,7 @@ def interpret_logistic_model(model, feature_names=None):
     intercept = model.intercept_[0]
     
     if feature_names is None:
-        feature_names = [f'Feature_{i}' for i in range(len(coefficients))]
+        feature_names = [f"Feature_{i}" for i in range(len(coefficients))]
     
     print("Logistic Regression Coefficients:")
     print(f"Intercept: {intercept:.4f}")
@@ -371,10 +371,10 @@ def interpret_logistic_model(model, feature_names=None):
 
 # Interpret the model
 interpretation = interpret_logistic_model(model, ['Feature_1', 'Feature_2'])
-\`\`\`
+```
 
 ### Model Performance Metrics
-\`\`\`python
+```python
 def evaluate_classification_model(y_true, y_pred, y_pred_proba=None):
     """
     Comprehensive evaluation of classification model
@@ -423,13 +423,13 @@ def evaluate_classification_model(y_true, y_pred, y_pred_proba=None):
 
 # Evaluate the model
 performance = evaluate_classification_model(y_test, y_pred, y_pred_proba)
-\`\`\`
+```
 
 ## Regularization
 
 Regularization helps prevent overfitting:
 
-\`\`\`python
+```python
 from sklearn.linear_model import LogisticRegressionCV
 
 # L1 regularization (Lasso)
@@ -452,13 +452,13 @@ for name, model in models.items():
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     print(f"{name}: {accuracy:.4f}")
-\`\`\`
+```
 
 ## Practice Exercise
 
 Create a function to perform logistic regression with cross-validation:
 
-\`\`\`python
+```python
 def logistic_regression_cv(X, y, cv_folds=5):
     """
     Perform logistic regression with cross-validation
@@ -484,7 +484,7 @@ def logistic_regression_cv(X, y, cv_folds=5):
 # Test the function
 cv_result = logistic_regression_cv(X_train, y_train, cv_folds=5)
 print(f"Cross-validation accuracy: {cv_result['mean_cv_score']:.4f} (+/- {cv_result['std_cv_score']*2:.4f})")
-\`\`\`
+```
             `,
             exercises: [
               {
@@ -558,7 +558,7 @@ Filter methods select features based on statistical measures, independent of the
 
 ## Correlation-Based Selection
 
-\`\`\`python
+```python
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -571,7 +571,7 @@ X, y = make_classification(n_samples=1000, n_features=20, n_informative=10,
                          n_redundant=5, n_clusters_per_class=1, random_state=42)
 
 # Create DataFrame
-feature_names = [f'feature_{i}' for i in range(X.shape[1])]
+feature_names = [f"feature_{i}" for i in range(X.shape[1])]
 df = pd.DataFrame(X, columns=feature_names)
 df['target'] = y
 
@@ -608,12 +608,12 @@ correlated_features = find_correlated_features(correlation_matrix, threshold=0.8
 print("Highly correlated feature pairs:")
 for feat1, feat2, corr in correlated_features:
     print(f"{feat1} - {feat2}: {corr:.3f}")
-\`\`\`
+```
 
 ## Statistical Tests
 
 ### ANOVA F-test
-\`\`\`python
+```python
 def anova_feature_selection(X, y, k=10):
     """
     Select top k features using ANOVA F-test
@@ -623,7 +623,7 @@ def anova_feature_selection(X, y, k=10):
     
     # Create feature scores DataFrame
     feature_scores = pd.DataFrame({
-        'feature': [f'feature_{i}' for i in range(X.shape[1])],
+        'feature': [f"feature_{i}" for i in range(X.shape[1])],
         'f_score': f_scores,
         'p_value': p_values
     })
@@ -651,10 +651,10 @@ plt.title('Feature Importance (ANOVA F-test)')
 plt.xticks(range(len(top_features)), top_features['feature'], rotation=45)
 plt.tight_layout()
 plt.show()
-\`\`\`
+```
 
 ### Mutual Information
-\`\`\`python
+```python
 def mutual_info_feature_selection(X, y, k=10):
     """
     Select top k features using mutual information
@@ -664,7 +664,7 @@ def mutual_info_feature_selection(X, y, k=10):
     
     # Create feature scores DataFrame
     feature_scores = pd.DataFrame({
-        'feature': [f'feature_{i}' for i in range(X.shape[1])],
+        'feature': [f"feature_{i}" for i in range(X.shape[1])],
         'mutual_info': mi_scores
     })
     
@@ -691,13 +691,13 @@ comparison = pd.merge(
 
 print("\\nFeature Selection Comparison:")
 print(comparison.head(10))
-\`\`\`
+```
 
 ## Variance Threshold
 
 Remove low-variance features:
 
-\`\`\`python
+```python
 from sklearn.feature_selection import VarianceThreshold
 
 def variance_feature_selection(X, threshold=0.01):
@@ -714,7 +714,7 @@ def variance_feature_selection(X, threshold=0.01):
     selected_features = selector.get_support()
     
     # Get feature names
-    feature_names = [f'feature_{i}' for i in range(X.shape[1])]
+    feature_names = [f"feature_{i}" for i in range(X.shape[1])]
     selected_feature_names = [feature_names[i] for i in range(len(feature_names)) if selected_features[i]]
     
     return X_selected, selected_feature_names, selector
@@ -726,11 +726,11 @@ print(f"Original features: {X.shape[1]}")
 print(f"Selected features: {X_var_selected.shape[1]}")
 print(f"Removed features: {X.shape[1] - X_var_selected.shape[1]}")
 print(f"Selected feature names: {var_selected_features}")
-\`\`\`
+```
 
 ## Comprehensive Feature Selection Pipeline
 
-\`\`\`python
+```python
 def comprehensive_feature_selection(X, y, k=10, variance_threshold=0.01, correlation_threshold=0.8):
     """
     Comprehensive feature selection pipeline
@@ -782,13 +782,13 @@ print(f"After variance threshold: {X.shape[1] - feature_selection_result['varian
 print(f"After correlation removal: {feature_selection_result['final_count'] + feature_selection_result['correlation_removed']}")
 print(f"Final selected features: {feature_selection_result['final_count']}")
 print(f"Selected feature names: {feature_selection_result['selected_features']}")
-\`\`\`
+```
 
 ## Practice Exercise
 
 Create a feature selection evaluation function:
 
-\`\`\`python
+```python
 def evaluate_feature_selection(X, y, selected_features, model):
     """
     Evaluate the impact of feature selection on model performance
@@ -825,7 +825,7 @@ print(f"All features accuracy: {evaluation['all_features_score']:.4f}")
 print(f"Selected features accuracy: {evaluation['selected_features_score']:.4f}")
 print(f"Improvement: {evaluation['improvement']:.4f}")
 print(f"Feature reduction: {evaluation['feature_reduction']:.1f}%")
-\`\`\`
+```
             `,
             exercises: [
               {
@@ -843,7 +843,7 @@ def recursive_feature_elimination(X, y, n_features, model):
     rfe = RFE(estimator=model, n_features_to_select=n_features)
     X_rfe = rfe.fit_transform(X, y)
     
-    selected_features = [f'feature_{i}' for i in range(X.shape[1]) if rfe.support_[i]]
+    selected_features = [f"feature_{i}" for i in range(X.shape[1]) if rfe.support_[i]]
     
     return X_rfe, selected_features, rfe
                 `

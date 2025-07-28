@@ -13,7 +13,7 @@ import {
   Key,
   Download,
   Share,
-  Verify,
+  CheckCircle,
   Copy,
   Check,
   Eye,
@@ -33,12 +33,12 @@ import { useGamification } from '../contexts/GamificationContext';
 const BlockchainCredentials = () => {
   const [credentials, setCredentials] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedCredential, setSelectedCredential] = useState(null);
   const [verificationHash, setVerificationHash] = useState('');
   const [verificationResult, setVerificationResult] = useState(null);
   const [blockchainStatus, setBlockchainStatus] = useState('connected');
+  const [_selectedCredential, setSelectedCredential] = useState(null);
   const { user } = useAuth();
-  const { addXP, achievements } = useGamification();
+  const { addXP } = useGamification();
 
   useEffect(() => {
     loadUserCredentials();
@@ -404,7 +404,7 @@ const BlockchainCredentials = () => {
               disabled={!verificationHash.trim()}
               className="w-full"
             >
-              <Verify className="w-4 h-4 mr-2" />
+              <CheckCircle className="w-4 h-4 mr-2" />
               Verify on Blockchain
             </Button>
           </div>

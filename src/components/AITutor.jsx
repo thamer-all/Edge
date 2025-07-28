@@ -9,12 +9,6 @@ import {
   Send, 
   Bot, 
   User, 
-  Brain, 
-  Lightbulb, 
-  BookOpen, 
-  Target, 
-  Clock,
-  MessageSquare,
   Sparkles,
   Loader2
 } from 'lucide-react';
@@ -58,12 +52,11 @@ const AITutor = ({ currentLesson, currentSection }) => {
       setMessages([welcomeMessage]);
       
       // Generate contextual suggestions
-      generateSuggestions(currentLesson, currentSection);
+      generateSuggestions();
     }
   }, [currentLesson, currentSection]);
 
-  const generateSuggestions = (lesson, section) => {
-    const sectionContent = lesson?.sections[section]?.content || '';
+  const generateSuggestions = () => {
     const newSuggestions = [
       `Explain the main concepts in this section`,
       `Give me a practical example of this topic`,
@@ -92,7 +85,7 @@ const AITutor = ({ currentLesson, currentSection }) => {
 
     try {
       // Simulate AI response (replace with actual API call)
-      const aiResponse = await generateAIResponse(content, conversationContext, messages);
+      const aiResponse = await generateAIResponse(content, conversationContext);
       
       const aiMessage = {
         id: Date.now() + 1,
@@ -122,7 +115,7 @@ const AITutor = ({ currentLesson, currentSection }) => {
     }
   };
 
-  const generateAIResponse = async (userInput, context, messageHistory) => {
+  const generateAIResponse = async (userInput, context) => {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
 
@@ -181,11 +174,11 @@ const AITutor = ({ currentLesson, currentSection }) => {
     }
   };
 
-  const generateSimplifiedExplanation = (context) => {
+  const generateSimplifiedExplanation = () => {
     return "Let me break this down into simpler terms. Think of it like this: [simplified analogy based on context]. The key is to understand the basic principles first, then build up to the more complex applications.";
   };
 
-  const generateConnectionExplanation = (context) => {
+  const generateConnectionExplanation = () => {
     return "This builds upon the concepts we covered earlier. The connection is that [explanation of relationship]. Understanding this relationship helps you see the bigger picture of how all these concepts work together.";
   };
 

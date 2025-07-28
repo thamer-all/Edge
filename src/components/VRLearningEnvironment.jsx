@@ -19,7 +19,7 @@ import {
   Share,
   Brain,
   Network,
-  Cube,
+  Box,
   Globe,
   Atom,
   Sparkles,
@@ -141,7 +141,7 @@ const VRLearningEnvironment = ({ currentLesson, currentSection }) => {
       case 'interactive': return <Target className="w-4 h-4" />;
       case 'guided': return <Lightbulb className="w-4 h-4" />;
       case 'exploratory': return <Globe className="w-4 h-4" />;
-      case 'constructive': return <Cube className="w-4 h-4" />;
+      case 'constructive': return <Box className="w-4 h-4" />;
       default: return <Brain className="w-4 h-4" />;
     }
   };
@@ -236,7 +236,7 @@ const VRLearningEnvironment = ({ currentLesson, currentSection }) => {
                   onClick={() => handleInteraction('construct')}
                   className="bg-purple-600 text-white border-purple-600 hover:bg-purple-700"
                 >
-                  <Cube className="w-4 h-4 mr-1" />
+                  <Box className="w-4 h-4 mr-1" />
                   Construct
                 </Button>
               </div>

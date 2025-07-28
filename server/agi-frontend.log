@@ -1,0 +1,38 @@
+
+> agi-learning-platform-server@1.0.0 dev
+> nodemon server.js
+
+[33m[nodemon] 3.1.10[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node server.js`[39m
+SQLite bindings not available, using mock database
+Using mock database and User model
+Using mock database connection
+✅ SQLite Database Connected Successfully
+Mock database sync completed
+✅ Database synchronized successfully
+node:events:485
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::5001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (/Users/thamer/Downloads/agi-learning-platform/server/node_modules/.pnpm/express@4.21.2/node_modules/express/lib/application.js:635:24)
+    at startServer (/Users/thamer/Downloads/agi-learning-platform/server/server.js:86:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1976:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 5001
+}
+
+Node.js v24.3.0
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m

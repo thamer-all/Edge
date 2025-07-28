@@ -30,16 +30,12 @@ import {
   Wifi,
   HardDrive
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { useGamification } from '../contexts/GamificationContext';
 
 const AdvancedAnalyticsDashboard = () => {
   const [timeRange, setTimeRange] = useState('7d');
   const [selectedMetric, setSelectedMetric] = useState('overview');
   const [isLoading, setIsLoading] = useState(false);
   const [analyticsData, setAnalyticsData] = useState({});
-  const { user } = useAuth();
-  const { achievements } = useGamification();
 
   useEffect(() => {
     loadAnalyticsData();

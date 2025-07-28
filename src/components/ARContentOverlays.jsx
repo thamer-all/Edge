@@ -26,10 +26,9 @@ import {
   Smartphone,
   Monitor
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 import { useGamification } from '../contexts/GamificationContext';
 
-const ARContentOverlays = ({ currentLesson, currentSection }) => {
+const ARContentOverlays = () => {
   const [isARMode, setIsARMode] = useState(false);
   const [currentOverlay, setCurrentOverlay] = useState('concept-markers');
   const [scanningMode, setScanningMode] = useState('object');
@@ -37,7 +36,6 @@ const ARContentOverlays = ({ currentLesson, currentSection }) => {
   const [isScanning, setIsScanning] = useState(false);
   const [detectedObjects, setDetectedObjects] = useState([]);
   const videoRef = useRef(null);
-  const { user } = useAuth();
   const { addXP } = useGamification();
 
   const overlayTypes = {

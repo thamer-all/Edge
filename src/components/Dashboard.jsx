@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, BookOpen, Brain, Zap, Code, Play, Clock, Users, RotateCcw, Settings } from 'lucide-react';
+import { ArrowRight, BookOpen, Brain, Zap, Code, Play, Clock, Users, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';

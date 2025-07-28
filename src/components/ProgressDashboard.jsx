@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { Trophy, Target, Clock, BookOpen, Edit3, Star, TrendingUp, Calendar, Award, Brain } from 'lucide-react';
+import { Trophy, Target, Clock, BookOpen, Edit3, Star, TrendingUp, Calendar, Award, Brain, RotateCcw, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useGamification } from '../contexts/GamificationContext';
 
 const ProgressDashboard = () => {
   const [progressData, setProgressData] = useState({});
   const [studyStreak, setStudyStreak] = useState(0);
   const [totalStudyTime, setTotalStudyTime] = useState(0);
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const { resetAllProgress } = useGamification();
 
   useEffect(() => {
     // Load all progress data from localStorage
@@ -87,6 +92,80 @@ const ProgressDashboard = () => {
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Learning Progress Dashboard</h1>
         <p className="text-muted-foreground">Track your AI learning journey and achievements</p>
       </div>
+
+      {/* Reset Progress Section */}
+      <Card className="border-red-200 bg-red-50/50 mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center text-red-700">
+            <AlertTriangle className="w-5 h-5 mr-2" />
+            Danger Zone
+          </CardTitle>
+          <CardDescription className="text-red-600">
+            Irreversible actions that will permanently delete your progress
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg bg-white">
+            <div>
+              <h4 className="font-semibold text-red-800">Reset All Progress</h4>
+              <p className="text-sm text-red-600 mt-1">
+                Permanently delete all learning progress, achievements, and statistics
+              </p>
+            </div>
+            <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset Progress
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-red-600" />
+                    Reset All Progress
+                  </DialogTitle>
+                  <DialogDescription>
+                    This action will permanently delete all your learning progress, including:
+                    <ul className="list-disc list-inside mt-2 space-y-1">
+                      <li>Completed lessons and quizzes</li>
+                      <li>Achievement badges and XP points</li>
+                      <li>Study streaks and statistics</li>
+                      <li>Saved bookmarks and notes</li>
+                      <li>All progress data and analytics</li>
+                    </ul>
+                    <strong className="block mt-3 text-red-600">This action cannot be undone.</strong>
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex gap-3 justify-end mt-6">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowResetDialog(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    variant="destructive"
+                    onClick={() => {
+                      resetAllProgress();
+                      setShowResetDialog(false);
+                      // Reload the page to show reset progress
+                      window.location.reload();
+                    }}
+                  >
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Reset Everything
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -301,6 +380,80 @@ const ProgressDashboard = () => {
                   <div className="text-lg font-bold text-purple-700">Best Subject</div>
                   <div className="text-sm text-purple-600">Programming</div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Reset Progress Section */}
+          <Card className="border-red-200 bg-red-50/50">
+            <CardHeader>
+              <CardTitle className="flex items-center text-red-700">
+                <AlertTriangle className="w-5 h-5 mr-2" />
+                Danger Zone
+              </CardTitle>
+              <CardDescription className="text-red-600">
+                Irreversible actions that will permanently delete your progress
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg bg-white">
+                <div>
+                  <h4 className="font-semibold text-red-800">Reset All Progress</h4>
+                  <p className="text-sm text-red-600 mt-1">
+                    Permanently delete all learning progress, achievements, and statistics
+                  </p>
+                </div>
+                <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      Reset Progress
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5 text-red-600" />
+                        Reset All Progress
+                      </DialogTitle>
+                      <DialogDescription>
+                        This action will permanently delete all your learning progress, including:
+                        <ul className="list-disc list-inside mt-2 space-y-1">
+                          <li>Completed lessons and quizzes</li>
+                          <li>Achievement badges and XP points</li>
+                          <li>Study streaks and statistics</li>
+                          <li>Saved bookmarks and notes</li>
+                          <li>All progress data and analytics</li>
+                        </ul>
+                        <strong className="block mt-3 text-red-600">This action cannot be undone.</strong>
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex gap-3 justify-end mt-6">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowResetDialog(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        variant="destructive"
+                        onClick={() => {
+                          resetAllProgress();
+                          setShowResetDialog(false);
+                          // Reload the page to show reset progress
+                          window.location.reload();
+                        }}
+                      >
+                        <RotateCcw className="w-4 h-4 mr-2" />
+                        Reset Everything
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </CardContent>
           </Card>

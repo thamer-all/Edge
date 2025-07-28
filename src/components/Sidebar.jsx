@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronRight, Home, BookOpen, Brain, Zap, Code, Settings, User, Search, Menu, X, BarChart3, Clock, LogOut, LogIn, TrendingUp } from 'lucide-react';
+import { ChevronDown, ChevronRight, Home, BookOpen, Brain, Zap, Code, Settings, User, Search, Menu, X, BarChart3, Clock, LogOut, LogIn, TrendingUp, Info, HelpCircle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../contexts/AuthContext';
+import { useGamification } from '../contexts/GamificationContext';
 import LoginModal from './LoginModal';
 import LanguageSelector from './LanguageSelector';
 import { useI18n } from '../contexts/I18nContext';
+import GlobalSearch from './GlobalSearch';
 
 const Sidebar = ({ onOpenStudyTimer }) => {
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ const Sidebar = ({ onOpenStudyTimer }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showGlobalSearch, setShowGlobalSearch] = useState(false);
   const { t } = useI18n();
 
   // Updated categories to match the new roadmap structure
@@ -162,7 +165,20 @@ const Sidebar = ({ onOpenStudyTimer }) => {
   const handleNavigation = (categoryId, subCategoryId = null) => {
     const category = categories.find(cat => cat.id === categoryId);
     
-    if (category && category.roadmap) {
+    // Handle special navigation pages
+    if (categoryId === 'overview') {
+      navigate('/dashboard');
+    } else if (categoryId === 'progress-dashboard') {
+      navigate('/dashboard');
+    } else if (categoryId === 'analytics') {
+      navigate('/analytics');
+    } else if (categoryId === 'about') {
+      navigate('/about');
+    } else if (categoryId === 'help') {
+      navigate('/help');
+    } else if (categoryId === 'contact') {
+      navigate('/contact');
+    } else if (category && category.roadmap) {
       // Navigate to roadmap page
       navigate(`/roadmap/${category.roadmap.toLowerCase().replace(/\s+/g, '-')}`);
     } else if (subCategoryId) {
@@ -206,10 +222,11 @@ const Sidebar = ({ onOpenStudyTimer }) => {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-sidebar-foreground/60" />
           <Input
-            placeholder="Search..."
+            placeholder="Search lessons, topics..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-sidebar-accent border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/60 text-sm"
+            onFocus={() => setShowGlobalSearch(true)}
+            className="pl-10 bg-sidebar-accent border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/60 text-sm cursor-pointer"
           />
         </div>
       </div>
@@ -249,6 +266,57 @@ const Sidebar = ({ onOpenStudyTimer }) => {
           >
             <Clock className="w-4 h-4 mr-2 lg:mr-3" />
             Study Timer
+          </Button>
+
+          {/* Analytics */}
+          <Button
+            variant="ghost"
+            className={`w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent text-sm lg:text-base ${
+              location.pathname === '/analytics' ? 'bg-sidebar-accent' : ''
+            }`}
+            onClick={() => handleNavigation('analytics')}
+          >
+            <TrendingUp className="w-4 h-4 mr-2 lg:mr-3" />
+            Analytics
+          </Button>
+
+          {/* Divider */}
+          <div className="my-4 border-t border-sidebar-border"></div>
+
+          {/* About */}
+          <Button
+            variant="ghost"
+            className={`w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent text-sm lg:text-base ${
+              location.pathname === '/about' ? 'bg-sidebar-accent' : ''
+            }`}
+            onClick={() => handleNavigation('about')}
+          >
+            <Info className="w-4 h-4 mr-2 lg:mr-3" />
+            About
+          </Button>
+
+          {/* Help */}
+          <Button
+            variant="ghost"
+            className={`w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent text-sm lg:text-base ${
+              location.pathname === '/help' ? 'bg-sidebar-accent' : ''
+            }`}
+            onClick={() => handleNavigation('help')}
+          >
+            <HelpCircle className="w-4 h-4 mr-2 lg:mr-3" />
+            Help & Support
+          </Button>
+
+          {/* Contact */}
+          <Button
+            variant="ghost"
+            className={`w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent text-sm lg:text-base ${
+              location.pathname === '/contact' ? 'bg-sidebar-accent' : ''
+            }`}
+            onClick={() => handleNavigation('contact')}
+          >
+            <Mail className="w-4 h-4 mr-2 lg:mr-3" />
+            Contact Us
           </Button>
 
           {/* Categories */}
@@ -423,6 +491,21 @@ const Sidebar = ({ onOpenStudyTimer }) => {
         isOpen={showLoginModal} 
         onClose={() => setShowLoginModal(false)} 
       />
+
+      {/* Global Search */}
+      {showGlobalSearch && (
+        <GlobalSearch 
+          onNavigate={(path) => {
+            navigate(path);
+            setShowGlobalSearch(false);
+            setSearchQuery('');
+          }}
+          onClose={() => {
+            setShowGlobalSearch(false);
+            setSearchQuery('');
+          }}
+        />
+      )}
     </>
   );
 };

@@ -1,0 +1,179 @@
+// Updated AGI Learning Platform Roadmap Data
+export const roadmapData = {
+  "AI Engineer": {
+    icon: "🤖",
+    description: "Complete AGI development from foundations to deployment",
+    totalLessons: 150,
+    estimatedHours: 600,
+    categories: [
+      {
+        id: "foundations",
+        title: "Pillar 1: Foundations",
+        description: "Mathematical and computer science foundations",
+        topics: [
+          { id: "linear-algebra", title: "Linear Algebra", duration: "8", difficulty: "intermediate", description: "Master vectors, matrices, and linear transformations essential for AI" },
+          { id: "calculus-optimization", title: "Calculus & Optimization", duration: "10", difficulty: "intermediate", description: "Learn derivatives, gradients, and optimization techniques" },
+          { id: "probability-statistics", title: "Probability & Statistics", duration: "12", difficulty: "intermediate", description: "Statistical foundations and probabilistic reasoning" },
+          { id: "information-theory", title: "Information Theory", duration: "6", difficulty: "advanced", description: "Mathematical framework for quantifying information" },
+          { id: "algorithms-computational-complexity", title: "Algorithms & Computational Complexity", duration: "8", difficulty: "intermediate", description: "Algorithm design and complexity analysis" },
+          { id: "advanced-optimization-techniques", title: "Advanced Optimization Techniques", duration: "6", difficulty: "advanced", description: "Advanced methods for function optimization" },
+          { id: "python-programming", title: "Python Programming", duration: "12", difficulty: "beginner", description: "Python fundamentals for AI development" },
+          { id: "data-structures-algorithms", title: "Data Structures & Algorithms", duration: "15", difficulty: "intermediate", description: "Core data structures and algorithmic thinking" },
+          { id: "theory-of-computation", title: "Theory of Computation", duration: "6", difficulty: "intermediate", description: "Computational complexity and Big O analysis" },
+          { id: "trees-graphs-hash-tables", title: "Trees, Graphs & Hash Tables", duration: "8", difficulty: "intermediate", description: "Advanced data structures for AI applications" },
+          { id: "searching-sorting-algorithms", title: "Searching & Sorting Algorithms", duration: "6", difficulty: "intermediate", description: "Efficient searching and sorting techniques" }
+        ]
+      },
+      {
+        id: "data-knowledge",
+        title: "Pillar 2: Data & Knowledge",
+        description: "Data engineering and knowledge management systems",
+        topics: [
+          { id: "data-collection-preparation", title: "Data Collection & Preparation", duration: "10", difficulty: "intermediate", description: "SQL, NoSQL, Web Scraping techniques" },
+          { id: "data-cleaning-labeling", title: "Data Cleaning & Labeling", duration: "8", difficulty: "beginner", description: "Data preprocessing and annotation" },
+          { id: "feature-engineering-selection", title: "Feature Engineering & Selection", duration: "6", difficulty: "intermediate", description: "Creating and selecting relevant features" },
+          { id: "exploratory-data-analysis", title: "Exploratory Data Analysis", duration: "6", difficulty: "beginner", description: "Statistical analysis and data exploration" },
+          { id: "visualization", title: "Data Visualization", duration: "8", difficulty: "beginner", description: "Matplotlib, Seaborn, Tableau, Power BI" },
+          { id: "neural-turing-machines", title: "Neural Turing Machines", duration: "4", difficulty: "advanced", description: "External memory architectures" },
+          { id: "vector-databases", title: "Vector Databases", duration: "6", difficulty: "intermediate", description: "FAISS, Pinecone, Weaviate, Chroma" },
+          { id: "knowledge-graphs-ontologies", title: "Knowledge Graphs & Ontologies", duration: "8", difficulty: "advanced", description: "Neo4j, RDF, OWL" },
+          { id: "episodic-associative-memory", title: "Episodic & Associative Memory", duration: "4", difficulty: "advanced", description: "Memory systems for AI" },
+          { id: "ontology-schema-design", title: "Ontology & Schema Design", duration: "6", difficulty: "advanced", description: "Structured knowledge representation" },
+          { id: "information-extraction-ingestion", title: "Information Extraction", duration: "6", difficulty: "intermediate", description: "NER, Relation Extraction" },
+          { id: "knowledge-fusion-reconciliation", title: "Knowledge Fusion", duration: "4", difficulty: "advanced", description: "Combining multiple knowledge sources" },
+          { id: "query-languages", title: "Query Languages", duration: "6", difficulty: "intermediate", description: "SPARQL, Cypher, GraphQL" },
+          { id: "semantic-hybrid-search", title: "Semantic Search", duration: "4", difficulty: "intermediate", description: "Advanced search techniques" },
+          { id: "reasoning-inference-engines", title: "Reasoning & Inference", duration: "6", difficulty: "advanced", description: "Logic-based reasoning systems" },
+          { id: "graph-analytics-embeddings", title: "Graph Analytics", duration: "4", difficulty: "advanced", description: "Graph analysis and embeddings" }
+        ]
+      },
+      {
+        id: "core-learning-paradigms",
+        title: "Pillar 3: Core Learning Paradigms",
+        description: "Fundamental AI learning approaches and algorithms",
+        topics: [
+          { id: "supervised-learning", title: "Supervised Learning", duration: "10", difficulty: "intermediate", description: "Regression, Classification, and Model Training" },
+          { id: "unsupervised-learning", title: "Unsupervised Learning", duration: "8", difficulty: "intermediate", description: "Clustering, PCA, t-SNE" },
+          { id: "deep-learning-basics", title: "Deep Learning Fundamentals", duration: "15", difficulty: "intermediate", description: "MLPs, CNNs, RNNs, LSTMs" },
+          { id: "generative-models", title: "Generative Models", duration: "12", difficulty: "advanced", description: "GANs, VAEs, Diffusion Models" },
+          { id: "reinforcement-learning", title: "Reinforcement Learning", duration: "10", difficulty: "intermediate", description: "Q-learning, PPO, Actor-Critic" },
+          { id: "probabilistic-graphical-models", title: "Probabilistic Graphical Models", duration: "8", difficulty: "advanced", description: "Bayesian Networks, Markov Random Fields" },
+          { id: "ensemble-methods", title: "Ensemble Methods", duration: "6", difficulty: "intermediate", description: "Bagging, Boosting, Stacking" },
+          { id: "model-selection-validation", title: "Model Selection & Validation", duration: "6", difficulty: "intermediate", description: "Cross-validation and hyperparameter tuning" },
+          { id: "self-supervised-learning", title: "Self-Supervised Learning", duration: "8", difficulty: "advanced", description: "Contrastive and Masked Modeling" },
+          { id: "meta-learning", title: "Meta-Learning", duration: "8", difficulty: "advanced", description: "Learning to learn, MAML, Prototypical Networks" },
+          { id: "causal-inference", title: "Causal Inference", duration: "8", difficulty: "advanced", description: "Counterfactual reasoning and causal discovery" },
+          { id: "uncertainty-quantification", title: "Uncertainty Quantification", duration: "4", difficulty: "advanced", description: "Bayesian approaches and calibration" }
+        ]
+      },
+      {
+        id: "language-agents",
+        title: "Pillar 4: Language & Agents",
+        description: "Natural language processing and intelligent agent systems",
+        topics: [
+          { id: "tokenization-embeddings", title: "Tokenization & Embeddings", duration: "6", difficulty: "intermediate", description: "Text processing and vector representations" },
+          { id: "transformer-architectures", title: "Transformer Architectures", duration: "12", difficulty: "advanced", description: "GPT, BERT, T5 and attention mechanisms" },
+          { id: "fine-tuning-evaluation", title: "Fine-tuning & Evaluation", duration: "8", difficulty: "advanced", description: "LoRA, PEFT, QLoRA techniques" },
+          { id: "retrieval-augmented-generation", title: "Retrieval-Augmented Generation", duration: "6", difficulty: "advanced", description: "RAG systems and knowledge integration" },
+          { id: "advanced-prompt-engineering", title: "Advanced Prompt Engineering", duration: "6", difficulty: "intermediate", description: "Chain-of-Thought, ReAct patterns" },
+          { id: "zero-shot-learning", title: "Zero-Shot Learning", duration: "4", difficulty: "advanced", description: "Open-set and zero-shot classification" },
+          { id: "autonomous-task-planning", title: "Autonomous Task Planning", duration: "8", difficulty: "advanced", description: "AI planning and execution systems" },
+          { id: "multi-agent-coordination", title: "Multi-Agent Systems", duration: "6", difficulty: "advanced", description: "Coordination and swarm intelligence" },
+          { id: "agentic-frameworks", title: "Agentic Frameworks", duration: "8", difficulty: "intermediate", description: "LangChain, AutoGPT, CrewAI, LangGraph" },
+          { id: "reflection-self-improvement", title: "Reflection & Self-Improvement", duration: "6", difficulty: "advanced", description: "Recursive improvement loops" },
+          { id: "federated-learning-privacy", title: "Federated Learning", duration: "6", difficulty: "advanced", description: "Distributed learning and privacy" }
+        ]
+      }
+    ]
+  },
+  "Data Analyst": {
+    icon: "📊",
+    description: "Transform data into actionable insights and business intelligence",
+    totalLessons: 85,
+    estimatedHours: 280,
+    categories: [
+      {
+        id: "data-foundations",
+        title: "Data Foundations",
+        description: "Core data analysis and visualization skills",
+        topics: [
+          { id: "sql-fundamentals", title: "SQL Fundamentals", duration: "12", difficulty: "beginner", description: "Database queries and data manipulation" },
+          { id: "nosql-databases", title: "NoSQL Databases", duration: "8", difficulty: "intermediate", description: "MongoDB, Cassandra, and document stores" },
+          { id: "web-scraping", title: "Web Scraping", duration: "6", difficulty: "intermediate", description: "Automated data collection from websites" },
+          { id: "data-cleaning", title: "Data Cleaning & Labeling", duration: "10", difficulty: "beginner", description: "Data preprocessing and quality assurance" },
+          { id: "statistical-analysis", title: "Statistical Analysis", duration: "8", difficulty: "intermediate", description: "Descriptive and inferential statistics" },
+          { id: "data-visualization", title: "Data Visualization", duration: "10", difficulty: "beginner", description: "Charts, dashboards, and storytelling" }
+        ]
+      }
+    ]
+  },
+  "AI Data Scientist": {
+    icon: "🔬",
+    description: "Advanced analytics, ML modeling, and data-driven decision making",
+    totalLessons: 120,
+    estimatedHours: 450,
+    categories: [
+      {
+        id: "advanced-analytics",
+        title: "Advanced Analytics",
+        description: "Statistical modeling and machine learning",
+        topics: [
+          { id: "hypothesis-testing", title: "Hypothesis Testing", duration: "8", difficulty: "intermediate", description: "Statistical significance and p-values" },
+          { id: "regression-analysis", title: "Regression Analysis", duration: "10", difficulty: "intermediate", description: "Linear and logistic regression" },
+          { id: "time-series-analysis", title: "Time Series Analysis", duration: "12", difficulty: "advanced", description: "Forecasting and trend analysis" },
+          { id: "machine-learning-advanced", title: "Advanced Machine Learning", duration: "15", difficulty: "advanced", description: "Ensemble methods and feature engineering" },
+          { id: "experiment-design", title: "Experiment Design", duration: "6", difficulty: "intermediate", description: "A/B testing and causal inference" },
+          { id: "model-deployment", title: "Model Deployment", duration: "8", difficulty: "intermediate", description: "MLOps and production systems" }
+        ]
+      }
+    ]
+  },
+  "AI Red Teaming": {
+    icon: "🛡️",
+    description: "Security testing, adversarial attacks, and AI system vulnerabilities",
+    totalLessons: 95,
+    estimatedHours: 320,
+    categories: [
+      {
+        id: "security-fundamentals",
+        title: "AI Security Fundamentals",
+        description: "Core security concepts for AI systems",
+        topics: [
+          { id: "evasion-attacks", title: "Evasion Attacks", duration: "6", difficulty: "advanced", description: "Adversarial examples and input perturbations" },
+          { id: "poisoning-attacks", title: "Poisoning Attacks", duration: "6", difficulty: "advanced", description: "Training data manipulation" },
+          { id: "model-extraction", title: "Model Extraction", duration: "4", difficulty: "advanced", description: "Stealing model parameters and architecture" },
+          { id: "robustness-testing", title: "Robustness Testing", duration: "8", difficulty: "advanced", description: "Testing AI system resilience" },
+          { id: "privacy-attacks", title: "Privacy Attacks", duration: "5", difficulty: "advanced", description: "Membership inference and data leakage" },
+          { id: "defensive-techniques", title: "Defensive Techniques", duration: "7", difficulty: "advanced", description: "Adversarial training and detection" }
+        ]
+      }
+    ]
+  },
+  "AI Agents": {
+    icon: "🤝",
+    description: "Autonomous systems, multi-agent systems, and intelligent automation",
+    totalLessons: 75,
+    estimatedHours: 300,
+    categories: [
+      {
+        id: "agent-systems",
+        title: "Agent Systems",
+        description: "Building intelligent autonomous agents",
+        topics: [
+          { id: "agent-architectures", title: "Agent Architectures", duration: "8", difficulty: "advanced", description: "BDI, reactive, and hybrid architectures" },
+          { id: "planning-execution", title: "Planning & Execution", duration: "10", difficulty: "advanced", description: "Goal-oriented behavior and task planning" },
+          { id: "multi-agent-coordination", title: "Multi-Agent Coordination", duration: "8", difficulty: "advanced", description: "Communication and cooperation protocols" },
+          { id: "reinforcement-learning-agents", title: "RL for Agents", duration: "12", difficulty: "advanced", description: "Learning autonomous behaviors" },
+          { id: "swarm-intelligence", title: "Swarm Intelligence", duration: "6", difficulty: "advanced", description: "Collective behavior and emergence" },
+          { id: "human-agent-interaction", title: "Human-Agent Interaction", duration: "5", difficulty: "intermediate", description: "Collaborative AI systems" }
+        ]
+      }
+    ]
+  }
+};
+
+// Legacy array format for backward compatibility
+export const roadmapDataArray = Object.entries(roadmapData).map(([title, content]) => ({
+  title,
+  ...content
+}));
